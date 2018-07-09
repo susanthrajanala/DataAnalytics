@@ -1,0 +1,77 @@
+---
+title: "SAT&Acc"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+# Reads the two files for acceptance rate and sat scores
+Acceptance.Rates = read.csv("/Users/Susanth_Rajanala/Desktop/R/Acceptance Rates.csv", stringsAsFactors = FALSE)
+SAT.Score = read.csv("/Users/Susanth_Rajanala/Desktop/R/SAT Score.csv", stringsAsFactors = FALSE)
+# Bind the two informations together
+main_data <- cbind(Acceptance.Rates, SAT.Score)
+# Removes the repeat columns
+main_data <- main_data[,-c(6:8)]
+# Creates new columns for the total SAT score and the Acceptance Rate
+main_data$totalSAT <- as.numeric(main_data$sat_math_75) + as.numeric(main_data$sat_cr_75)
+main_data$acceptanceRate <- as.numeric(main_data$admissions_total) / as.numeric(main_data$applicants_total)
+# Creates subsets individualizing the three different years 
+# Then plots the data
+main_data_2014 <- subset(main_data, main_data$year==2014)
+View(main_data_2014)
+plot(main_data_2014$totalSAT, main_data_2014$acceptanceRate)
+main_data_2015 <- subset(main_data, main_data$year==2015)
+View(main_data_2015)
+plot(main_data_2015$totalSAT, main_data_2015$acceptanceRate)
+main_data_2016 <- subset(main_data, main_data$year==2016)
+View(main_data_2016)
+plot(main_data_2016$totalSAT, main_data_2016$acceptanceRate)
+View(main_data)
+# Creates further subsets that only take into account SAT scores above 1350
+# Then plots that new data for the new subset
+main_data_2014_1350 <- subset(main_data_2014, main_data_2014$totalSAT > 1350)
+main_data_2015_1350 <- subset(main_data_2015, main_data_2015$totalSAT > 1350)
+main_data_2016_1350 <- subset(main_data_2016, main_data_2016$totalSAT > 1350)
+plot(main_data_2014_1350$totalSAT, main_data_2014_1350$acceptanceRate)
+plot(main_data_2015_1350$totalSAT, main_data_2015_1350$acceptanceRate)
+plot(main_data_2016_1350$totalSAT, main_data_2016_1350$acceptanceRate)
+# Finds the average slope for the data for the graphs above
+cor(as.numeric(main_data_2014_1350$acceptanceRate), as.numeric(main_data_2014_1350$totalSAT))
+cor(as.numeric(main_data_2015_1350$acceptanceRate), as.numeric(main_data_2015_1350$totalSAT))
+cor(as.numeric(main_data_2016_1350$acceptanceRate), as.numeric(main_data_2016_1350$totalSAT))
+
+k <- 1
+u <- as.character(unique(main_data$university_name))
+result <- matrix(0, nrow = length(u), ncol = 3)
+result <- as.data.frame(result)
+colnames(result) <- c("university_name", "avg SAT", "avg Acceptance Rate")
+# Loops so it takes the averages for each one
+for(i in 1:length(u)){
+  temp <- subset(main_data, main_data$university_name == u[i])
+  result$university_name[k] <- u[i]
+  result$avgSAT[k] <- mean(temp$totalSAT)
+  result$avgAcceptance[k] <- mean(temp$acceptanceRate)
+  k <- k + 1
+}
+result <- result[,-c(2:3)]
+View(result)
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
